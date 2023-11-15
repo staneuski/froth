@@ -1,0 +1,17 @@
+/[0-9]*/
+/constant/meshToMesh_*/
+/constant/polyMesh/
+/dynamicCode/
+/logs/
+/postProcessing*/
+/processor*/
+/VTK/
+
+[add,mag]*(*)
+[cell,point]*Level
+[cell,point]*ToRegion
+*.blockMesh
+*.foam
+*.log
+*.OpenFOAM
+log.*

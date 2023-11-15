@@ -1,0 +1,272 @@
+#!/bin/bash
+
+function usage() {
+  cat<<USAGE
+
+usage: ${0##*/} [OPTIONS] FOAM_CASE
+
+tape an OpenFOAM case files.
+
+positional arguments:
+  FOAM_CASE          OpenFOAM case directory
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -v, --verbose      output information
+  -d, --debug        print debug statements
+  -k, --keep         keep input files
+  -n, --nthreads nthreads
+                     maximum number of threads to tape function objects (default: 8)
+  --no-mesh          do not tape polyMesh directories
+  --no-times         do not tape times &/or processor directories
+  --no-logs          do not tape log-files
+  --no-fnobj         do not tape function objects
+  --no-vtk           do not tape VTK directory
+  --no-xz            do not compress logs*.tar, probes*.tar, graphs*.tar
+
+froth v0.4.… [$(which bash)] Copyright (c) 2021-2023 Stanislau Stasheuski
+USAGE
+}
+
+
+function error() {
+  exec 1>&2
+  while [ "$#" -ge 1 ]; do
+    echo "$1"
+    shift
+  done
+
+  usage
+  exit 1
+}
+
+
+# Parse options
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  --case | -c)
+    [ "$#" -ge 2 ] || error "'$1' option requires an argument"
+    [ -d "$2" ] || error "Case directory does not exist: '$2'"
+    case_dir=$(realpath ${2})
+    shift 2
+    ;;
+  --keep | -k)
+    keep=true
+    shift 1
+    ;;
+
+  --threads | -n)
+    [ "$#" -ge 2 ] || error "'$1' option requires an argument"
+    nthreads=${2}
+    shift 2
+    ;;
+
+  --no-mesh)
+    no_mesh=true
+    shift 1
+    ;;
+  --no-times)
+    no_times=true
+    shift 1
+    ;;
+  --no-logs)
+    no_logs=true
+    shift 1
+    ;;
+  --no-fnobj)
+    no_fnobj=true
+    shift 1
+    ;;
+  --no-vtk)
+    no_vtk=true
+    shift 1
+    ;;
+  --no-xz)
+    no_xz=true
+    shift 1
+    ;;
+
+  --help | -h)
+    usage && exit 0
+    ;;
+  --verbose | -v)
+    level=20
+    shift 1
+    ;;
+  --debug | -d)
+    level=10
+    shift 1
+    ;;
+  *)
+    break
+    ;;
+  esac
+done
+[ $# -ge 1 ] || error "incorrect arguments specified"
+command -v foamListTimes > /dev/null || error "OpenFOAM environment is not set"
+
+# Set argument values
+[ $# -eq 1 ] && case_dir=$(realpath ${1%/}) ||
+  error "OpenFOAM case directory is not specified"
+
+[ -z ${level+x} ] && level=30
+
+[ -z ${keep+x} ] && keep=false
+[ -z ${nthreads+x} ] && nthreads=8
+
+[ -z ${no_mesh+x} ] && no_mesh=false
+[ -z ${no_times+x} ] && no_times=false
+[ -z ${no_logs+x} ] && no_logs=false
+[ -z ${no_fnobj+x} ] && no_fnobj=false
+[ -z ${no_vtk+x} ] && no_vtk=false
+[ -z ${no_xz+x} ] && no_xz=false
+
+
+#######################################
+# Logging style output.
+# Globals:
+#   level
+# Arguments:
+#   Case-insensetive logging level
+#   Message
+#
+# https://docs.python.org/3/library/logging.html#logging-levels
+#######################################
+function _logging() {
+  # Convert passed level to its numeric value
+  case ${1^^} in
+    CRITICAL )
+      local _level=50 ;;
+    ERROR )
+      local _level=40 ;;
+    WARNING )
+      local _level=30 ;;
+    INFO )
+      local _level=20 ;;
+    DEBUG )
+      local _level=10 ;;
+    NOTSET | *)
+      local _level=0 ;;
+  esac
+
+  [[ $_level -ge $level ]] && printf "[${0##*/}:${1^^}] ${2}\n"
+}
+
+
+#######################################
+# tar wrapper
+# Globals:
+#   keep
+#   level
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+#######################################
+function _tar() {
+  [ ${keep} = true ] && args="" || args="--remove-files "
+  [ $level -le 10 ] && args+="-uvf " || args+="-uf "
+  args+="$@"
+
+  _logging DEBUG "\`\$ tar $args\`:\n"
+  tar $args
+}
+
+
+#######################################
+# Archive a directory relative to am OpenFOAM-case root
+# Arguments:
+#   Path to archive file
+#   Path to $FOAM_CASE
+#   List of folders
+#######################################
+function _archive() {
+  local _dest=${1}
+  local _case=${2}
+  local _list=${3}
+
+  if [[ -z ${_list} ]] && [[ ! -f ${_case}/${_dest}.tar ]]; then
+    _logging WARNING "no ${_dest} files found"
+    return 1
+  fi
+
+  [[ ! -z ${_list} ]] && \
+  _logging INFO "merging ${_dest} files into a .tar-file…" && \
+  _tar ${_case}/${_dest}.tar -C ${_case} $(echo ${_list} | sed "s|${_case}||g")
+
+  _logging INFO "files for ${_dest} are merged ($(du -sh ${_case}/${_dest}.tar|awk '{print $1}'))"
+}
+
+
+function archive_mesh() {
+  local _case=${1}
+  local _list=$(find ${_case}/constant -type d -name polyMesh)
+
+  _archive mesh ${_case}/ "${_list}"
+}
+
+
+function archive_times() {
+  local _case=${1}
+  local _list=$(foamListTimes -case ${_case})
+  if compgen -G "${_case}/processor*" > /dev/null; then
+    _list+=" $(ls -d ${_case}/processor*)"
+  fi
+
+  _archive times ${_case}/ "${_list}"
+}
+
+
+function archive_logs() {
+  local _case=${1}
+  local _list=$(find ${_case} -maxdepth 2 \( \
+    -iname 'log.*' \
+    -or -iname '*.log' \
+    -or -iname '*.out' -or -iname '*.err' \
+    -or -type d -name logs \
+  \))
+
+  _archive logs ${_case}/ "${_list}"
+}
+
+
+function archive_fn_objects() {
+  local _case=${1}
+  [[ -d ${_case}/postProcessing ]] || return 1
+
+  _logging DEBUG "merging function objects (maximum number of parallel nthreads: ${nthreads})"
+  for fn_obj in ${_case}/postProcessing*/*/; do
+    (
+      _logging INFO "merging $(basename ${fn_obj}) function object…"
+      _tar ${fn_obj%/}.tar -C $(dirname $fn_obj) $(basename $fn_obj) && \
+      _logging INFO "$(basename ${fn_obj}) function object is merged"
+    ) &
+  done
+  wait
+}
+
+
+function archive_VTK() {
+  local _case=${1}
+  local _list=$(find ${_case} -maxdepth 1 -type d -name VTK)
+
+  _archive VTK ${_case}/ "${_list}"
+}
+
+[ ${no_mesh} != true ] && archive_mesh $case_dir &
+[ ${no_times} != true ] && archive_times $case_dir &
+[ ${no_logs} != true ] && archive_logs $case_dir &
+[ ${no_fnobj} != true ] && archive_fn_objects $case_dir &
+[ ${no_vtk} != true ] && archive_VTK $case_dir &
+wait
+
+find $case_dir -type d -empty -delete &
+rm -rf $case_dir/dynamicCode &
+
+if [ ${no_xz} != true ]; then
+   _logging INFO "compressing logs*.tar, probes*.tar, graphs*.tar"
+  [ $level -le 20 ] && args="--verbose" || args=""
+  find ${_case} -maxdepth 3 -type f \( \
+    -iname 'logs*.tar' \
+    -or -name 'graphs*.tar' \
+    -or -name 'probes*.tar' \
+  \) -exec unxz $args --threads=0 --compress -9e --force {} +
+fi

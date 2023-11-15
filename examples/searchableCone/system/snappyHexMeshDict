@@ -1,0 +1,92 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#includeEtc "caseDicts/mesh/generation/snappyHexMeshDict.cfg"
+
+castellatedMesh true;
+snap            true;
+addLayers       false;
+
+geometry
+{
+    cone
+    {
+        type    searchableCone;
+        point1  (-0.4 0.1 -0.3);
+        point2  ( 0.3 0.2 -0.1);
+        radius1 0.5;
+        radius2 0.2;
+    }
+};
+
+castellatedMeshControls
+{
+    maxGlobalCells   2000000;
+
+    resolveFeatureAngle   95;
+    features
+    (
+    );
+
+    nCellsBetweenLevels    2;
+    refinementSurfaces
+    {
+        cone
+        {
+            level (3 3);
+            patchInfo { type wall; }
+        }
+    }
+    refinementRegions
+    {
+    }
+    locationInMesh (0 0 0);
+}
+
+snapControls
+{
+    nSmoothPatch           3;
+    tolerance            1.0;
+    nSolveIter            30;
+    nFeatureSnapIter      25;
+}
+
+addLayersControls
+{
+    layers
+    {
+        cone
+        {
+            nSurfaceLayers 3;
+        }
+    }
+    relativeSizes      false;
+    expansionRatio       1.4;
+    thickness         7.5e-6;
+    minThickness       1e-18;
+
+    featureAngle         150;
+    slipFeatureAngle       5;
+
+    nSmoothSurfaceNormals  4;
+}
+
+writeFlags
+(
+);
+
+
+// ************************************************************************* //

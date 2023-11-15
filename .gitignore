@@ -1,0 +1,11 @@
+# C extensions
+*.dylib
+*.so
+
+# OpenFOAM stuff:
+darwin*Clang*/
+linux*Clang*/
+linux*Gcc*/
+linux*Icc*/
+lnInclude/
+
