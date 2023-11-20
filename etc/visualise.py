@@ -12,7 +12,6 @@ import paraview.simple as pv
 
 LOGGING_FORMAT = '[foamio:%(levelname)s] (called at %(asctime)s) %(message)s'
 
-SUPPORTED_SUFFIXES = ('.foam', '.OpenFOAM', '.pvd', '.vtk', '.vtu', '.vtp')
 
 def _load(args: argparse.Namespace) -> None:
     """https://kitware.github.io/paraview-docs/latest/python/_modules/paraview/simple.html#LoadState
@@ -23,30 +22,6 @@ def _load(args: argparse.Namespace) -> None:
         str(args.state),
         data_directory=str(args.case) if not args.case is None else None,
     )
-    for name_to_id, proxy in pv.GetSources().items():
-        print(name_to_id[0])
-        if name_to_id[0].endswith(SUPPORTED_SUFFIXES):
-            # proxy
-            # pv.AssignLookupTable(proxy)
-            # print(name_to_id, proxy)
-            print(proxy.PointData['U.liquid'])
-            print(pv.GetDisplayProperties(proxy))
-            pv.AssignLookupTable(proxy.CellData['U.liquid'], "Cool to Warm")
-            # pv.ColorBy(
-            #     pv.GetDisplayProperties(proxy),
-            #     value="U.liquid",
-            # )
-
-    # print(pv.GetAllSettings())
-    # print({key[0]: key[1] for key in pv.GetSources().keys()})
-        # pv.ColorBy(separate='p')
-        # print(pv.GetDisplayProperties(proxy, pv.active_objects.view))
-        # print(pv.GetViewProperties(proxy.view))
-
-        # pv.ColorBy(
-        #     pv.GetDisplayProperties(proxy, pv.active_objects.view),
-        #     value="p",
-        # )
 
 
 def add_args(parser: argparse.ArgumentParser, pv_func: Callable) -> None:
@@ -102,7 +77,7 @@ def main() -> argparse.Namespace:
         '--case',
         type=Path,
         help='directory from where to load files'
-        'https://kitware.github.io/paraview-docs/latest/python/_modules/paraview/simple.html#LoadState',
+        ' https://kitware.github.io/paraview-docs/latest/python/_modules/paraview/simple.html#LoadState',
     )
 
     parent_parser.add_argument(
