@@ -24,7 +24,7 @@ optional arguments:
   --no-vtk           do not tape VTK directory
   --no-xz            do not compress logs*.tar, probes*.tar, graphs*.tar
 
-froth v0.4.… [$(which bash)] Copyright (c) 2021-2023 Stanislau Stasheuski
+froth v0.5.2 [$(which bash)] Copyright (c) 2023 Stanislau Stasheuski
 USAGE
 }
 

@@ -58,9 +58,9 @@ def visualise(args: argparse.Namespace, pv_func: Callable) -> None:
 def main() -> argparse.Namespace:
     parent_parser = argparse.ArgumentParser(
         description='Missing ParaView CLI.',
-        epilog=f'foamio pvbatch'
+        epilog=f'froth pvbatch'
         f' [Python {version_info.major}.{version_info.minor}.{version_info.micro}]'
-        '\nCopyright (c) 2021-2023 Stanislau Stasheuski',
+        '\nCopyright (c) 2023 Stanislau Stasheuski',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parent_parser.add_argument(
