@@ -1,0 +1,4 @@
+cavitatingTwoPhaseMixture/cavitatingTwoPhaseMixture.C
+cavitationFoam.C
+
+EXE = $(FOAM_USER_APPBIN)/cavitationFoam
