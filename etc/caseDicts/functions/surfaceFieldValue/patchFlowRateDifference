@@ -11,7 +11,7 @@ patch2          <patchName2>;
 
 fields          (phi);
 
-#includeEtc "caseDicts/postProcessing/surfaceFieldValue/patchDifference.cfg"
+#includeEtc "caseDicts/functions/surfaceFieldValue/patchDifference.cfg"
 
 operation       add;
 
