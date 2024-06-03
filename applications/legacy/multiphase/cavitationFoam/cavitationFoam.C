@@ -2,12 +2,12 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2023 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2011-2024 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is originating from OpenFOAM but modified by authors described
-    below.
+    This file is originating from OpenFOAM and modified by the authors
+    described below.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ Application
 
 Authors
     Henry Weller, CFD-Direct, 2023.
+
+    Stanislau Stasheuski, Aalto University, 2023-2024.
+    stanislau.stasheuski@aalto.fi
 
 Description
     Transient cavitation code based on the homogeneous equilibrium model

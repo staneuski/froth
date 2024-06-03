@@ -6,8 +6,8 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
-    This file is originating from OpenFOAM but modified by authors described
-    below.
+    This file is originating from OpenFOAM and modified by the authors
+    described below.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by

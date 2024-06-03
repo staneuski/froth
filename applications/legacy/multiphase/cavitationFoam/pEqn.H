@@ -60,7 +60,7 @@
         label swirlCmpt(pimple.dict().lookup<label>("removeSwirl"));
 
         Info<< "Removing swirl component-" << swirlCmpt << " of U" << endl;
-        U.field().replace(swirlCmpt, 0.0);
+        U.replace(swirlCmpt, 0.0);
     }
 
     U.correctBoundaryConditions();

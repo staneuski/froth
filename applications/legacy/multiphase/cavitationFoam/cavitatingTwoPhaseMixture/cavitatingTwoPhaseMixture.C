@@ -7,7 +7,7 @@
 -------------------------------------------------------------------------------
 License
     This file is originating from OpenFOAM but modified by authors described
-    below.
+    in the according header file.
 
     OpenFOAM is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
@@ -21,9 +21,6 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-
-Authors
-    Henry Weller, CFD-Direct, 2023.
 
 \*---------------------------------------------------------------------------*/
 
@@ -66,7 +63,7 @@ Foam::cavitatingTwoPhaseMixture::cavitatingTwoPhaseMixture
             mesh
         ),
         mesh,
-        dimensionedScalar(dimViscosity, 0),
+        dimensionedScalar(dimKinematicViscosity, 0),
         calculatedFvPatchScalarField::typeName
     ),
 
