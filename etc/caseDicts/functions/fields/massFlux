@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 Description
-    Caches and writes Mach number based on compressibility
+    Caches and writes mass flux
 
 \*---------------------------------------------------------------------------*/
 
@@ -16,23 +16,28 @@ libs            ( "libutilityFunctionObjects.so" );
 executeControl  writeTime;
 writeControl    writeTime;
 
+codeInclude
+#{
+    #include "fvcFlux.H"
+#};
+
 codeFields
 #{
-    fields.append("psi");
+    fields.append("rho");
     fields.append("U");
 #};
 
 codeExecute
 #{
-    const volScalarField& psi = mesh().lookupObject<volScalarField>("psi");
-    const volVectorField& U = mesh().lookupObject<volVectorField>("UMean");
+    const volScalarField& rho = mesh().lookupObject<volScalarField>("rho");
+    const volVectorField& U = mesh().lookupObject<volVectorField>("U");
 
-    store("Ma", mag(U)*sqrt(psi));
+    store("varphi", linearInterpolate(rho*U) & mesh().Sf());
 #};
 
 codeWrite
 #{
-    return writeObject("Ma");
+    return writeObject("varphi");
 #};
 
 // ************************************************************************* //
