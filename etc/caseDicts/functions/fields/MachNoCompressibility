@@ -2,11 +2,11 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  dev (20241102)
+    \\  /    A nd           | Version:  dev
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 Description
-    Caches and writes Mach number based on compressibility
+    Caches and writes Mach number based on compressibility field
 
 \*---------------------------------------------------------------------------*/
 
@@ -25,7 +25,7 @@ codeFields
 codeExecute
 #{
     const volScalarField& psi = mesh().lookupObject<volScalarField>("psi");
-    const volVectorField& U = mesh().lookupObject<volVectorField>("UMean");
+    const volVectorField& U = mesh().lookupObject<volVectorField>("U");
 
     store("Ma", mag(U)*sqrt(psi));
 #};

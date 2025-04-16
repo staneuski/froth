@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  dev (20241102)
+    \\  /    A nd           | Version:  dev
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 Description
@@ -29,15 +29,15 @@ codeFields
 
 codeExecute
 #{
-    const volScalarField& rho = mesh().lookupObject<volScalarField>("rho");
+    const surScalarField& rho = mesh().lookupObject<volScalarField>("rho");
     const volVectorField& U = mesh().lookupObject<volVectorField>("U");
 
-    store("varphi", linearInterpolate(rho*U) & mesh().Sf());
+    store("rhoPhi", linearInterpolate(rho*U) & mesh().Sf());
 #};
 
 codeWrite
 #{
-    return writeObject("varphi");
+    return writeObject("rhoPhi");
 #};
 
 // ************************************************************************* //
