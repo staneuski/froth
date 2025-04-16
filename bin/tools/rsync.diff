@@ -1,0 +1,15 @@
+- .*
+- ***/geometry/**
+- ***/polyMesh/**
+- *.gz
++ /0.orig/***
++ /0/***
++ /constant/***
++ /system/***
++ /All*
++ /*.dat
++ /*.db
++ /*.py
++ /*.sh
++ /mesh.tar*
+- *
